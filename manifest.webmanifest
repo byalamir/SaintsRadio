@@ -1,0 +1,19 @@
+{
+  "name": "Saints Radio",
+  "short_name": "Saints Radio",
+  "description": "Electronic sounds by St.Michael",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e9e5da",
+  "theme_color": "#292e27",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
