@@ -53,10 +53,42 @@ function render(){
  $('tracks').replaceChildren(...albums[albumIndex].tracks.map((track,i)=>{const button=document.createElement('button');button.className='track';button.setAttribute('aria-pressed',i===trackIndex);button.innerHTML=`<span class="tracknum">${String(i+1).padStart(2,'0')}</span><span class="tracktitle"></span><span class="badge"></span>`;button.querySelector('.tracktitle').textContent=track.title;button.querySelector('.badge').textContent=track.src?'PLAY':'NO AUDIO YET';button.onclick=()=>selectTrack(i);return button}));
  $('albumname').textContent=albums[albumIndex].title;$('tapeTitle').textContent=albums[albumIndex].title;$('tapeColor').setAttribute('fill',albums[albumIndex].color);
 }
-function sound(eject=false){if(!$('effects').checked)return;try{context??=new(window.AudioContext||window.webkitAudioContext)();context.resume();const osc=context.createOscillator(),gain=context.createGain();osc.type='triangle';osc.frequency.setValueAtTime(eject?130:220,context.currentTime);osc.frequency.exponentialRampToValueAtTime(30,context.currentTime+.12);gain.gain.setValueAtTime(.035,context.currentTime);gain.gain.exponentialRampToValueAtTime(.001,context.currentTime+.14);osc.connect(gain).connect(context.destination);osc.start();osc.stop(context.currentTime+.15)}catch{}}
+async function sound(action='stop'){
+ if(!$('effects').checked)return;
+ try{
+  context??=new(window.AudioContext||window.webkitAudioContext)();
+  if(context.state==='suspended')await context.resume();
+  const t=context.currentTime,level=Number($('volume').value);
+  // A springy low clunk with two short latch impacts, rather than a musical beep.
+  const buffer=context.createBuffer(1,Math.ceil(context.sampleRate*.09),context.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let n=0;n<data.length;n++)data[n]=(Math.random()*2-1)*Math.exp(-n/(context.sampleRate*.008));
+  const output=context.createGain();output.gain.value=level;output.connect(context.destination);
+  for(const [offset,strength] of [[0,.55],[action==='stop'?.032:.022,.26]]){
+   const source=context.createBufferSource(),filter=context.createBiquadFilter(),gain=context.createGain();
+   source.buffer=buffer;filter.type='bandpass';filter.frequency.value=action==='stop'?1800:2400;filter.Q.value=.65;
+   gain.gain.value=strength;source.connect(filter).connect(gain).connect(output);source.start(t+offset);
+  }
+  const body=context.createOscillator(),bodyGain=context.createGain();
+  body.type='sine';body.frequency.setValueAtTime(action==='stop'?160:210,t);body.frequency.exponentialRampToValueAtTime(65,t+.045);
+  bodyGain.gain.setValueAtTime(.22,t);bodyGain.gain.exponentialRampToValueAtTime(.001,t+.065);
+  body.connect(bodyGain).connect(output);body.start(t);body.stop(t+.07);
+  body.onended=()=>setTimeout(()=>output.disconnect(),100);
+ }catch{}
+}
 function clearAudio(){audio.pause();audio.removeAttribute('src');audio.load();$('seek').disabled=true;$('seek').value=0;$('elapsed').textContent='0:00';$('duration').textContent='—:—'}
-async function selectAlbum(i){if(i===albumIndex||swapping)return;swapping=true;clearAudio();sound(true);$('deck').classList.add('swapping');await new Promise(r=>setTimeout(r,260));albumIndex=i;trackIndex=-1;render();$('now').textContent='Select a track';$('status').textContent='Tape loaded. Pick a track.';$('deck').classList.remove('swapping');swapping=false}
-async function selectTrack(i){if(swapping)return;audio.pause();if(trackIndex!==-1&&trackIndex!==i)sound();trackIndex=i;render();const track=albums[albumIndex].tracks[i];$('now').textContent=track.title;if(!track.src){clearAudio();$('status').textContent='This is a placeholder. Audio is coming soon.';return}audio.src=track.src;await start()}
+async function selectAlbum(i){
+ if(i===albumIndex||swapping)return;
+ swapping=true;clearAudio();await sound('stop');
+ $('deck').classList.add('swapping');
+ await new Promise(r=>setTimeout(r,260));
+ albumIndex=i;trackIndex=-1;render();$('now').textContent='Select a track';
+ $('deck').classList.remove('swapping');
+ await new Promise(r=>setTimeout(r,260));
+ await sound('play');
+ $('status').textContent='Tape loaded. Pick a track.';swapping=false;
+}
+async function selectTrack(i){if(swapping)return;audio.pause();trackIndex=i;render();const track=albums[albumIndex].tracks[i];$('now').textContent=track.title;if(!track.src){clearAudio();$('status').textContent='This is a placeholder. Audio is coming soon.';return}audio.src=track.src;await start()}
 async function start(){try{await audio.play();$('status').textContent='Now playing.'}catch{$('status').textContent='Couldn’t play this track. Try again.'}}
 $('play').onclick=()=>{if(swapping)return;if(trackIndex<0){selectTrack(0);return}if(!albums[albumIndex].tracks[trackIndex].src){$('status').textContent='We’ll add the first test track soon.';return}if(audio.paused)start();else audio.pause()};
 $('previous').onclick=()=>selectTrack(Math.max(0,trackIndex-1));$('next').onclick=()=>selectTrack((trackIndex+1)%albums[albumIndex].tracks.length);
