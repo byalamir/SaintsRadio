@@ -122,4 +122,40 @@ audio.onended=()=>{
   if(next===trackIndex){audio.currentTime=0;start()}else selectTrack(next);
  }else $('status').textContent='End of tape.';
 };render();
+
+// Let supported browsers expose Saints Radio through lock-screen/headset controls.
+// The audio element remains the music source; visibility changes do not pause it.
+function updateMediaMetadata(){
+ if(!('mediaSession' in navigator)||!('MediaMetadata' in window))return;
+ const track=albums[albumIndex].tracks[trackIndex];
+ navigator.mediaSession.metadata=track?.src?new MediaMetadata({title:track.title,artist:'St.Michael',album:albums[albumIndex].title}):null;
+}
+function updateMediaPosition(){
+ if(!('mediaSession' in navigator)||!navigator.mediaSession.setPositionState)return;
+ try{
+  if(audio.getAttribute('src')&&Number.isFinite(audio.duration)&&audio.duration>0)
+   navigator.mediaSession.setPositionState({duration:audio.duration,playbackRate:audio.playbackRate,position:Math.min(audio.currentTime,audio.duration)});
+  else navigator.mediaSession.setPositionState();
+ }catch{}
+}
+if('mediaSession' in navigator){
+ const handlers={
+  play:()=>{if(!swapping&&audio.getAttribute('src'))start()},
+  pause:()=>audio.pause(),
+  stop:()=>{audio.pause();audio.currentTime=0;updateMediaPosition()},
+  previoustrack:()=>{const tracks=albums[albumIndex].tracks;for(let i=trackIndex-1;i>=0;i--)if(tracks[i].src){selectTrack(i);break}},
+  nexttrack:()=>{const tracks=albums[albumIndex].tracks;for(let i=trackIndex+1;i<tracks.length;i++)if(tracks[i].src){selectTrack(i);return}if(repeatMode==='album'){const first=tracks.findIndex(t=>t.src);if(first>=0)selectTrack(first)}},
+  seekbackward:details=>{audio.currentTime=Math.max(0,audio.currentTime-(details.seekOffset||10));updateMediaPosition()},
+  seekforward:details=>{if(Number.isFinite(audio.duration))audio.currentTime=Math.min(audio.duration,audio.currentTime+(details.seekOffset||10));updateMediaPosition()},
+  seekto:details=>{if(Number.isFinite(audio.duration)&&Number.isFinite(details.seekTime)){audio.currentTime=Math.max(0,Math.min(audio.duration,details.seekTime));updateMediaPosition()}}
+ };
+ for(const [action,handler] of Object.entries(handlers))try{navigator.mediaSession.setActionHandler(action,handler)}catch{}
+ audio.addEventListener('play',()=>{navigator.mediaSession.playbackState='playing';updateMediaMetadata();updateMediaPosition()});
+ audio.addEventListener('pause',()=>{navigator.mediaSession.playbackState=audio.getAttribute('src')?'paused':'none'});
+ audio.addEventListener('emptied',()=>{navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null;updateMediaPosition()});
+ audio.addEventListener('loadedmetadata',()=>{updateMediaMetadata();updateMediaPosition()});
+ audio.addEventListener('timeupdate',updateMediaPosition);
+ audio.addEventListener('ratechange',updateMediaPosition);
+}
+
 </script></body></html>
