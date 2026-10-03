@@ -185,7 +185,7 @@ const albums=[
   ]
  }
 ];
-const $=id=>document.getElementById(id),audio=$('audio');let albumIndex=0,trackIndex=-1,swapping=false,context,repeatMode='off';
+const $=id=>document.getElementById(id),audio=$('audio');let albumIndex=0,trackIndex=-1,swapping=false,context,repeatMode='off',freshTape=true,starting=false;
 audio.volume=.8;
 function render(){
  $('albums').replaceChildren(...albums.map((album,i)=>{const button=document.createElement('button');button.className='album';button.setAttribute('aria-pressed',i===albumIndex);button.innerHTML=`<span class="mini-cassette" style="--tape-color:${album.color}"><span class="mini-label"><span class="number">ST.MICHAEL / SR—00${i+1}</span><span class="name"></span><span class="mini-window"><i></i><b></b><i></i></span><span class="mini-side">A<span>90</span></span></span><span class="mini-base"></span></span><span class="albumtitle"></span><span class="albumtype"></span>`;button.querySelector('.name').textContent=album.title;button.querySelector('.albumtitle').textContent=album.title;button.querySelector('.albumtype').textContent=album.type;button.onclick=()=>selectAlbum(i);return button}));
@@ -217,19 +217,33 @@ async function sound(action='stop'){
 }
 function clearAudio(){audio.pause();audio.removeAttribute('src');audio.load();$('seek').disabled=true;$('seek').value=0;$('elapsed').textContent='0:00';$('duration').textContent='—:—'}
 async function selectAlbum(i){
- if(i===albumIndex||swapping)return;
+ if(i===albumIndex||swapping||starting)return;
  swapping=true;clearAudio();await sound('stop');
  $('deck').classList.add('swapping');
  await new Promise(r=>setTimeout(r,260));
- albumIndex=i;trackIndex=-1;render();$('now').textContent='Select a track';
+ albumIndex=i;trackIndex=-1;freshTape=true;render();$('now').textContent='Select a track';
  $('deck').classList.remove('swapping');
  await new Promise(r=>setTimeout(r,260));
  await sound('play');
  $('status').textContent='Tape loaded. Pick a track.';swapping=false;
 }
-async function selectTrack(i){if(swapping)return;audio.pause();trackIndex=i;render();const track=albums[albumIndex].tracks[i];$('now').textContent=track.title;if(!track.src){clearAudio();$('status').textContent='This is a placeholder. Audio is coming soon.';return}audio.src=track.src;await start()}
-async function start(){try{await audio.play();$('status').textContent='Now playing.'}catch{$('status').textContent='Couldn’t play this track. Try again.'}}
-$('play').onclick=()=>{if(swapping)return;if(trackIndex<0){selectTrack(0);return}if(!albums[albumIndex].tracks[trackIndex].src){$('status').textContent='We’ll add the first test track soon.';return}if(audio.paused)start();else audio.pause()};
+async function selectTrack(i){if(swapping||starting)return;audio.pause();trackIndex=i;render();const track=albums[albumIndex].tracks[i];$('now').textContent=track.title;if(!track.src){clearAudio();$('status').textContent='This is a placeholder. Audio is coming soon.';return}audio.src=track.src;await start()}
+async function start(){
+ if(starting||swapping)return;
+ starting=true;
+ try{
+  if(freshTape&&$('effects').checked){
+   $('status').textContent='Starting the tape…';
+   await sound('play');
+   await new Promise(resolve=>setTimeout(resolve,240));
+  }
+  await audio.play();
+  freshTape=false;
+  $('status').textContent='Now playing.';
+ }catch{$('status').textContent='Couldn’t play this track. Try again.'}
+ finally{starting=false}
+}
+$('play').onclick=()=>{if(swapping||starting)return;if(trackIndex<0){selectTrack(0);return}if(!albums[albumIndex].tracks[trackIndex].src){$('status').textContent='We’ll add the first test track soon.';return}if(audio.paused)start();else audio.pause()};
 $('previous').onclick=()=>selectTrack(Math.max(0,trackIndex-1));$('next').onclick=()=>selectTrack((trackIndex+1)%albums[albumIndex].tracks.length);
 $('volume').oninput=e=>audio.volume=Number(e.target.value);$('seek').oninput=e=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*Number(e.target.value)/100};
 const time=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
