@@ -12,6 +12,7 @@
 .install-card{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:16px;right:16px;max-width:370px;margin:auto;background:#292e27;color:#e9e5da;border:1px solid #59664b;border-radius:10px;box-shadow:0 6px 24px #0003;padding:18px 40px 18px 18px;z-index:10}
 .install-card[hidden]{display:none}.install-card h2{font:20px Georgia,serif;margin:0 0 8px}.install-card p{font-size:14px;line-height:1.5;margin:0 0 12px;color:#d4d5c9}.install-card button{min-height:40px}.install-action{background:#e9e5da;color:#292e27;border:0;border-radius:4px;padding:8px 12px;font-size:14px}.install-close{position:absolute;right:6px;top:6px;border:0;background:transparent;color:#e9e5da;font-size:24px;width:32px}.install-link{border:0;background:none;color:var(--muted);text-decoration:underline;padding:8px 0;font-size:12px}body.install-visible{padding-bottom:190px}
 .controls button{display:grid;place-items:center}.controls svg{width:23px;height:23px;fill:currentColor;display:block}.tape{filter:drop-shadow(0 12px 8px #0007);transform:translateY(-4px)}.deck{padding-top:27px}@media(max-width:600px){.deck{padding-top:20px}}
+.albums{grid-template-columns:repeat(2,minmax(0,1fr));max-width:650px;margin:auto;gap:28px}.mini-cassette{display:block;position:relative;aspect-ratio:1.6;padding:7% 5% 4%;border-radius:10px;background:#c9c4b3;border:1px solid #a29f91;box-shadow:0 7px 10px #292e2720;transition:transform .2s}.album:hover .mini-cassette{transform:translateY(-4px)}.album[aria-pressed=true] .mini-cassette{outline:1px solid var(--ink);outline-offset:5px}.mini-label{display:block;position:relative;padding:4% 5% 2%;background:var(--tape-color);color:#eceadb;border-radius:5px}.mini-label .number{display:block;font:clamp(7px,1.1vw,10px) monospace;letter-spacing:.4px}.mini-label .name{display:block;font:italic clamp(13px,2.1vw,21px)/1.15 Georgia,serif;margin:5% 0 4%;min-height:1.15em}.mini-window{display:flex;align-items:center;justify-content:space-between;height:clamp(25px,5vw,45px);background:#252c23;border:3px solid #c9c4b3;border-radius:30px;padding:0 7%}.mini-window i{width:22%;aspect-ratio:1;max-height:90%;background:#c9c4b3;border-radius:50%;position:relative}.mini-window i:after{content:'';position:absolute;inset:30%;border-radius:50%;background:#34392d}.mini-window b{width:38%;height:55%;background:repeating-linear-gradient(#9b977f 0 4px,#494d3c 4px 5px);border-radius:2px}.mini-side{display:flex;justify-content:space-between;font:10px monospace;margin-top:3%}.mini-base{display:block;margin:5% auto 0;width:54%;height:17px;background:#b1ad9b;clip-path:polygon(10% 0,90% 0,100% 100%,0 100%)}@media(max-width:600px){.albums{gap:18px}.mini-cassette{border-radius:6px}.mini-label .number{font-size:6px}.mini-label .name{font-size:13px;min-height:30px}.mini-base{height:10px}.mini-side{font-size:8px}}
 </style>
 </head>
 <body><main>
@@ -34,14 +35,14 @@
 <circle cx="133" cy="213" r="7" fill="#393e32"/><circle cx="267" cy="213" r="7" fill="#393e32"/><circle cx="165" cy="218" r="4" fill="#393e32"/><circle cx="235" cy="218" r="4" fill="#393e32"/>
 <g fill="#757866"><circle cx="18" cy="18" r="3"/><circle cx="382" cy="18" r="3"/><circle cx="18" cy="232" r="3"/><circle cx="382" cy="232" r="3"/></g>
 </svg><div class="hardware mono"><span><i class="lamp"></i>Stereo</span><span>SR—01 / Tape deck</span></div></div>
-<p class="now" id="now">Select a track</p><p class="albumname" id="albumname">Ballad of the Soul</p>
+<p class="now" id="albumname">Ballad of the Soul</p><p class="albumname" id="now">Select a track</p>
 <div class="progress"><span id="elapsed">0:00</span><input id="seek" type="range" min="0" max="100" value="0" aria-label="Playback position" disabled><span id="duration">—:—</span></div>
 <div class="controls"><button id="previous" aria-label="Previous track"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 5h3v14H5zM19 5v14L8 12z"/></svg></button><button class="play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4.5v15l12-7.5z"/></svg></button><button id="next" aria-label="Next track"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 5h3v14h-3zM5 5v14l11-7z"/></svg></button></div>
 <button id="repeat" class="repeat" aria-pressed="false" aria-label="Repeat off. Click to repeat album.">↻ Repeat off</button>
 <div class="preferences"><label>Volume <input id="volume" type="range" min="0" max="1" step=".01" value=".8"></label><label><input id="effects" type="checkbox" checked> Tape sounds</label></div>
 <p id="status" class="status" role="status">Pick a tape. Stay awhile.</p><audio id="audio" preload="metadata"></audio>
 </section>
-<section aria-label="Album collection"><div class="sectionheading"><h2 class="mono">The tape collection</h2><span class="mono" style="color:var(--muted)">Design preview · 04 tapes</span></div><div id="albums" class="albums"></div><div id="tracks" class="tracks" aria-label="Tracklist"></div></section>
+<section aria-label="Album collection"><div class="sectionheading"><h2 class="mono">The tape collection</h2><span class="mono" style="color:var(--muted)">02 tapes</span></div><div id="albums" class="albums"></div><div id="tracks" class="tracks" aria-label="Tracklist"></div></section>
 <footer><span>Saints Radio · St.Michael<br><button class="install-link" id="install-link" hidden>Add to Home Screen</button></span><span>Made to be listened to.</span></footer>
 </main>
 <aside id="install-card" class="install-card" aria-labelledby="install-title" hidden>
@@ -53,15 +54,141 @@
 <script>
 // Replace placeholder track titles and add an audio path, e.g. src: 'audio/song.mp3'.
 const albums=[
- {title:'Ballad of the Soul',color:'#59664b',type:'17 tracks / electronic',tracks:[{"title":"Four-Note Motif","src":"audio/four-note-motif.mp3"},{"title":"Golden Minaret","src":"audio/golden-minaret.mp3"},{"title":"After the Static","src":"audio/after-the-static.mp3"},{"title":"Descent into Maqam","src":"audio/descent-into-maqam.mp3"},{"title":"Desert Veils","src":"audio/desert-veils.mp3"},{"title":"Echoes in Bloom","src":"audio/echoes-in-bloom.mp3"},{"title":"Fields of Glass","src":"audio/fields-of-glass.mp3"},{"title":"Into the Blue","src":"audio/into-the-blue.mp3"},{"title":"Ivory Current","src":"audio/ivory-current.mp3"},{"title":"Ney at Dusk","src":"audio/ney-at-dusk.mp3"},{"title":"Nocturne Engine","src":"audio/nocturne-engine.mp3"},{"title":"Palm Signal","src":"audio/palm-signal.mp3"},{"title":"Skin of Light","src":"audio/skin-of-light.mp3"},{"title":"Slow Collapse","src":"audio/slow-collapse.mp3"},{"title":"Smoke Archive","src":"audio/smoke-archive.mp3"},{"title":"Soft Horizon","src":"audio/soft-horizon.mp3"},{"title":"Tender Machinery","src":"audio/tender-machinery.mp3"}]},
- {title:'Untitled / 02',color:'#505c52',type:'Post-rock jungle / placeholder',tracks:[{title:'Track 01',src:''},{title:'Track 02',src:''}]},
- {title:'Untitled / 03',color:'#b7a985',type:'Arabic jungle / placeholder',tracks:[{title:'Track 01',src:''},{title:'Track 02',src:''}]},
- {title:'Untitled / 04',color:'#4f535f',type:'Jazz jungle / placeholder',tracks:[{title:'Track 01',src:''},{title:'Track 02',src:''}]}
+ {
+  "title": "Ballad of the Soul",
+  "color": "#59664b",
+  "type": "17 tracks / electronic",
+  "tracks": [
+   {
+    "title": "Four-Note Motif",
+    "src": "audio/four-note-motif.mp3"
+   },
+   {
+    "title": "Golden Minaret",
+    "src": "audio/golden-minaret.mp3"
+   },
+   {
+    "title": "After the Static",
+    "src": "audio/after-the-static.mp3"
+   },
+   {
+    "title": "Descent into Maqam",
+    "src": "audio/descent-into-maqam.mp3"
+   },
+   {
+    "title": "Desert Veils",
+    "src": "audio/desert-veils.mp3"
+   },
+   {
+    "title": "Echoes in Bloom",
+    "src": "audio/echoes-in-bloom.mp3"
+   },
+   {
+    "title": "Fields of Glass",
+    "src": "audio/fields-of-glass.mp3"
+   },
+   {
+    "title": "Into the Blue",
+    "src": "audio/into-the-blue.mp3"
+   },
+   {
+    "title": "Ivory Current",
+    "src": "audio/ivory-current.mp3"
+   },
+   {
+    "title": "Ney at Dusk",
+    "src": "audio/ney-at-dusk.mp3"
+   },
+   {
+    "title": "Nocturne Engine",
+    "src": "audio/nocturne-engine.mp3"
+   },
+   {
+    "title": "Palm Signal",
+    "src": "audio/palm-signal.mp3"
+   },
+   {
+    "title": "Skin of Light",
+    "src": "audio/skin-of-light.mp3"
+   },
+   {
+    "title": "Slow Collapse",
+    "src": "audio/slow-collapse.mp3"
+   },
+   {
+    "title": "Smoke Archive",
+    "src": "audio/smoke-archive.mp3"
+   },
+   {
+    "title": "Soft Horizon",
+    "src": "audio/soft-horizon.mp3"
+   },
+   {
+    "title": "Tender Machinery",
+    "src": "audio/tender-machinery.mp3"
+   }
+  ]
+ },
+ {
+  "title": "Worldwide Jungle Vol I",
+  "color": "#505c52",
+  "type": "12 tracks / jungle",
+  "tracks": [
+   {
+    "title": "Blue Canopy",
+    "src": "audio/worldwide-jungle-vol-i/blue-canopy.mp3"
+   },
+   {
+    "title": "Carbon Heart",
+    "src": "audio/worldwide-jungle-vol-i/carbon-heart.mp3"
+   },
+   {
+    "title": "Cathedral Machine",
+    "src": "audio/worldwide-jungle-vol-i/cathedral-machine.mp3"
+   },
+   {
+    "title": "Collapse Theory",
+    "src": "audio/worldwide-jungle-vol-i/collapse-theory.mp3"
+   },
+   {
+    "title": "Desert Frequency",
+    "src": "audio/worldwide-jungle-vol-i/desert-frequency.mp3"
+   },
+   {
+    "title": "Midnight Bloom",
+    "src": "audio/worldwide-jungle-vol-i/midnight-bloom.mp3"
+   },
+   {
+    "title": "Mirage Circuit",
+    "src": "audio/worldwide-jungle-vol-i/mirage-circuit.mp3"
+   },
+   {
+    "title": "Neon Koi",
+    "src": "audio/worldwide-jungle-vol-i/neon-koi.mp3"
+   },
+   {
+    "title": "Orbital Rain",
+    "src": "audio/worldwide-jungle-vol-i/orbital-rain.mp3"
+   },
+   {
+    "title": "Seed Protocol",
+    "src": "audio/worldwide-jungle-vol-i/seed-protocol.mp3"
+   },
+   {
+    "title": "Silk Bloom",
+    "src": "audio/worldwide-jungle-vol-i/silk-bloom.mp3"
+   },
+   {
+    "title": "Sundown in Sudan",
+    "src": "audio/worldwide-jungle-vol-i/sundown-in-sudan.mp3"
+   }
+  ]
+ }
 ];
 const $=id=>document.getElementById(id),audio=$('audio');let albumIndex=0,trackIndex=-1,swapping=false,context,repeatMode='off';
 audio.volume=.8;
 function render(){
- $('albums').replaceChildren(...albums.map((album,i)=>{const button=document.createElement('button');button.className='album';button.setAttribute('aria-pressed',i===albumIndex);button.innerHTML=`<span class="cover cover-${i}"><span class="number">SR / 00${i+1}</span><span class="name"></span><span class="rule"></span></span><span class="albumtitle"></span><span class="albumtype"></span>`;button.querySelector('.name').textContent=album.title;button.querySelector('.albumtitle').textContent=album.title;button.querySelector('.albumtype').textContent=album.type;button.onclick=()=>selectAlbum(i);return button}));
+ $('albums').replaceChildren(...albums.map((album,i)=>{const button=document.createElement('button');button.className='album';button.setAttribute('aria-pressed',i===albumIndex);button.innerHTML=`<span class="mini-cassette" style="--tape-color:${album.color}"><span class="mini-label"><span class="number">ST.MICHAEL / SR—00${i+1}</span><span class="name"></span><span class="mini-window"><i></i><b></b><i></i></span><span class="mini-side">A<span>90</span></span></span><span class="mini-base"></span></span><span class="albumtitle"></span><span class="albumtype"></span>`;button.querySelector('.name').textContent=album.title;button.querySelector('.albumtitle').textContent=album.title;button.querySelector('.albumtype').textContent=album.type;button.onclick=()=>selectAlbum(i);return button}));
  $('tracks').replaceChildren(...albums[albumIndex].tracks.map((track,i)=>{const button=document.createElement('button');button.className='track';button.setAttribute('aria-pressed',i===trackIndex);button.innerHTML=`<span class="tracknum">${String(i+1).padStart(2,'0')}</span><span class="tracktitle"></span><span class="badge"></span>`;button.querySelector('.tracktitle').textContent=track.title;button.querySelector('.badge').textContent=track.src?'PLAY':'NO AUDIO YET';button.onclick=()=>selectTrack(i);return button}));
  $('albumname').textContent=albums[albumIndex].title;$('tapeTitle').textContent=albums[albumIndex].title;$('tapeColor').setAttribute('fill',albums[albumIndex].color);
 }
