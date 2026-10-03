@@ -13,6 +13,7 @@
 .install-card[hidden]{display:none}.install-card h2{font:20px Georgia,serif;margin:0 0 8px}.install-card p{font-size:14px;line-height:1.5;margin:0 0 12px;color:#d4d5c9}.install-card button{min-height:40px}.install-action{background:#e9e5da;color:#292e27;border:0;border-radius:4px;padding:8px 12px;font-size:14px}.install-close{position:absolute;right:6px;top:6px;border:0;background:transparent;color:#e9e5da;font-size:24px;width:32px}.install-link{border:0;background:none;color:var(--muted);text-decoration:underline;padding:8px 0;font-size:12px}body.install-visible{padding-bottom:190px}
 .controls button{display:grid;place-items:center}.controls svg{width:23px;height:23px;fill:currentColor;display:block}.tape{filter:drop-shadow(0 12px 8px #0007);transform:translateY(-4px)}.deck{padding-top:27px}@media(max-width:600px){.deck{padding-top:20px}}
 .albums{grid-template-columns:repeat(2,minmax(0,1fr));max-width:650px;margin:auto;gap:28px}.mini-cassette{display:block;position:relative;aspect-ratio:1.6;padding:7% 5% 4%;border-radius:10px;background:#c9c4b3;border:1px solid #a29f91;box-shadow:0 7px 10px #292e2720;transition:transform .2s}.album:hover .mini-cassette{transform:translateY(-4px)}.album[aria-pressed=true] .mini-cassette{outline:1px solid var(--ink);outline-offset:5px}.mini-label{display:block;position:relative;padding:4% 5% 2%;background:var(--tape-color);color:#eceadb;border-radius:5px}.mini-label .number{display:block;font:clamp(7px,1.1vw,10px) monospace;letter-spacing:.4px}.mini-label .name{display:block;font:italic clamp(13px,2.1vw,21px)/1.15 Georgia,serif;margin:5% 0 4%;min-height:1.15em}.mini-window{display:flex;align-items:center;justify-content:space-between;height:clamp(25px,5vw,45px);background:#252c23;border:3px solid #c9c4b3;border-radius:30px;padding:0 7%}.mini-window i{width:22%;aspect-ratio:1;max-height:90%;background:#c9c4b3;border-radius:50%;position:relative}.mini-window i:after{content:'';position:absolute;inset:30%;border-radius:50%;background:#34392d}.mini-window b{width:38%;height:55%;background:repeating-linear-gradient(#9b977f 0 4px,#494d3c 4px 5px);border-radius:2px}.mini-side{display:flex;justify-content:space-between;font:10px monospace;margin-top:3%}.mini-base{display:block;margin:5% auto 0;width:54%;height:17px;background:#b1ad9b;clip-path:polygon(10% 0,90% 0,100% 100%,0 100%)}@media(max-width:600px){.albums{gap:18px}.mini-cassette{border-radius:6px}.mini-label .number{font-size:6px}.mini-label .name{font-size:13px;min-height:30px}.mini-base{height:10px}.mini-side{font-size:8px}}
+header{flex-direction:column;justify-content:center;text-align:center;gap:14px}header .edition{font-size:10px;letter-spacing:1px}
 </style>
 </head>
 <body><main>
@@ -316,6 +317,7 @@ if('mediaSession' in navigator){
  const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
  const mobile=()=>matchMedia('(max-width: 900px)').matches&&matchMedia('(pointer: coarse)').matches;
  const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ const android=/Android/i.test(navigator.userAgent);
  let deferred=null,dismissed=false,ready=false;
  try{dismissed=Date.now()-Number(localStorage.getItem('saints-radio-install-dismissed')||0)<30*86400000}catch{}
  const hide=()=>{card.hidden=true;document.body.classList.remove('install-visible')};
@@ -323,7 +325,7 @@ if('mediaSession' in navigator){
   if(standalone()||!mobile()||(!manual&&dismissed))return;
   if(ios){copy.textContent='In Safari, open Share, then choose Add to Home Screen. If offered, turn on Open as Web App.';action.hidden=true}
   else if(deferred){copy.textContent='Add Saints Radio to your Home Screen for quick access to your tapes.';action.hidden=false}
-  else{copy.textContent='Open your browser menu and look for Install app or Add to Home Screen.';action.hidden=true}
+  else{copy.textContent=android?'In Chrome, tap the three-dot menu (⋮), then Add to Home screen or Install app. Confirm Add or Install. In Samsung Internet, open the menu (☰) and choose Add page to → Home screen.':'Open your browser menu and look for Install app or Add to Home Screen.';action.hidden=true}
   card.hidden=false;document.body.classList.add('install-visible');
  };
  $('install-close').onclick=()=>{hide();dismissed=true;try{localStorage.setItem('saints-radio-install-dismissed',String(Date.now()))}catch{}};
@@ -334,7 +336,7 @@ if('mediaSession' in navigator){
  };
  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferred=event;if(ready)show()});
  window.addEventListener('appinstalled',()=>{deferred=null;hide();link.hidden=true});
- setTimeout(()=>{ready=true;if(mobile()&&!standalone()){link.hidden=false;if(ios||deferred)show()}},8000);
+ setTimeout(()=>{ready=true;if(mobile()&&!standalone()){link.hidden=false;if(ios||android||deferred)show()}},8000);
 })();
 
 </script></body></html>
