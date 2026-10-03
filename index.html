@@ -15,6 +15,7 @@
 .albums{grid-template-columns:repeat(2,minmax(0,1fr));max-width:650px;margin:auto;gap:28px}.mini-cassette{display:block;position:relative;aspect-ratio:1.6;padding:7% 5% 4%;border-radius:10px;background:#c9c4b3;border:1px solid #a29f91;box-shadow:0 7px 10px #292e2720;transition:transform .2s}.album:hover .mini-cassette{transform:translateY(-4px)}.album[aria-pressed=true] .mini-cassette{outline:1px solid var(--ink);outline-offset:5px}.mini-label{display:block;position:relative;padding:4% 5% 2%;background:var(--tape-color);color:#eceadb;border-radius:5px}.mini-label .number{display:block;font:clamp(7px,1.1vw,10px) monospace;letter-spacing:.4px}.mini-label .name{display:block;font:italic clamp(13px,2.1vw,21px)/1.15 Georgia,serif;margin:5% 0 4%;min-height:1.15em}.mini-window{display:flex;align-items:center;justify-content:space-between;height:clamp(25px,5vw,45px);background:#252c23;border:3px solid #c9c4b3;border-radius:30px;padding:0 7%}.mini-window i{width:22%;aspect-ratio:1;max-height:90%;background:#c9c4b3;border-radius:50%;position:relative}.mini-window i:after{content:'';position:absolute;inset:30%;border-radius:50%;background:#34392d}.mini-window b{width:38%;height:55%;background:repeating-linear-gradient(#9b977f 0 4px,#494d3c 4px 5px);border-radius:2px}.mini-side{display:flex;justify-content:space-between;font:10px monospace;margin-top:3%}.mini-base{display:block;margin:5% auto 0;width:54%;height:17px;background:#b1ad9b;clip-path:polygon(10% 0,90% 0,100% 100%,0 100%)}@media(max-width:600px){.albums{gap:18px}.mini-cassette{border-radius:6px}.mini-label .number{font-size:6px}.mini-label .name{font-size:13px;min-height:30px}.mini-base{height:10px}.mini-side{font-size:8px}}
 header{flex-direction:column;justify-content:center;text-align:center;gap:14px}header .edition{font-size:10px;letter-spacing:1px}
 .mini-cassette{aspect-ratio:auto;padding:0;border:0;border-radius:10px;background:transparent;box-shadow:0 7px 10px #292e2720;line-height:0}.mini-cassette svg{display:block;width:100%;height:auto;aspect-ratio:8/5;overflow:visible}.album{min-width:0}.mini-cassette .name{font-style:normal}@media(max-width:600px){.mini-cassette{padding:0;border-radius:6px}}
+.release-date{margin:9px 0 12px;color:var(--muted);font:11px/1.5 'Courier New',monospace;letter-spacing:.5px}
 </style>
 </head>
 <body><main>
@@ -37,7 +38,7 @@ header{flex-direction:column;justify-content:center;text-align:center;gap:14px}h
 <circle cx="133" cy="213" r="7" fill="#393e32"/><circle cx="267" cy="213" r="7" fill="#393e32"/><circle cx="165" cy="218" r="4" fill="#393e32"/><circle cx="235" cy="218" r="4" fill="#393e32"/>
 <g fill="#757866"><circle cx="18" cy="18" r="3"/><circle cx="382" cy="18" r="3"/><circle cx="18" cy="232" r="3"/><circle cx="382" cy="232" r="3"/></g>
 </svg><div class="hardware mono"><span><i class="lamp"></i>Stereo</span><span>SR—01 / Tape deck</span></div></div>
-<p class="now" id="albumname">Ballad of the Soul</p><p class="albumname" id="now">Select a track</p>
+<p class="now" id="albumname">Ballad of the Soul</p><p class="release-date"><time id="releaseDate" datetime="2026-10-02">Released October 2, 2026</time></p><p class="albumname" id="now">Select a track</p>
 <div class="progress"><span id="elapsed">0:00</span><input id="seek" type="range" min="0" max="100" value="0" aria-label="Playback position" disabled><span id="duration">—:—</span></div>
 <div class="controls"><button id="previous" aria-label="Previous track"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 5h3v14H5zM19 5v14L8 12z"/></svg></button><button class="play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4.5v15l12-7.5z"/></svg></button><button id="next" aria-label="Next track"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 5h3v14h-3zM5 5v14l11-7z"/></svg></button></div>
 <button id="repeat" class="repeat" aria-pressed="false" aria-label="Repeat off. Click to repeat album.">↻ Repeat off</button>
@@ -58,6 +59,7 @@ header{flex-direction:column;justify-content:center;text-align:center;gap:14px}h
 const albums=[
  {
   "title": "Ballad of the Soul",
+  "releaseDate": "2026-10-02",
   "color": "#59664b",
   "type": "17 tracks / electronic",
   "tracks": [
@@ -133,6 +135,7 @@ const albums=[
  },
  {
   "title": "Worldwide Jungle Vol I",
+  "releaseDate": "2026-07-11",
   "color": "#8c6555",
   "type": "12 tracks / jungle",
   "tracks": [
@@ -206,6 +209,7 @@ function render(){
 <g fill="#757866"><circle cx="18" cy="18" r="3"/><circle cx="382" cy="18" r="3"/><circle cx="18" cy="232" r="3"/><circle cx="382" cy="232" r="3"/></g>
 </svg></span><span class="albumtitle"></span><span class="albumtype"></span>`;button.querySelector('.name').textContent=album.title;button.querySelector('.albumtitle').textContent=album.title;button.querySelector('.albumtype').textContent=album.type;button.onclick=()=>selectAlbum(i);return button}));
  $('tracks').replaceChildren(...albums[albumIndex].tracks.map((track,i)=>{const button=document.createElement('button');button.className='track';button.setAttribute('aria-pressed',i===trackIndex);button.innerHTML=`<span class="tracknum">${String(i+1).padStart(2,'0')}</span><span class="tracktitle"></span><span class="badge"></span>`;button.querySelector('.tracktitle').textContent=track.title;button.querySelector('.badge').textContent=track.src?'PLAY':'NO AUDIO YET';button.onclick=()=>selectTrack(i);return button}));
+ const release=albums[albumIndex].releaseDate;$('releaseDate').dateTime=release;$('releaseDate').textContent='Released '+new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(release+'T00:00:00Z'));
  $('albumname').textContent=albums[albumIndex].title;$('tapeTitle').textContent=albums[albumIndex].title;$('tapeColor').setAttribute('fill',albums[albumIndex].color);
 }
 async function sound(action='stop'){
